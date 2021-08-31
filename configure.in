@@ -1,0 +1,78 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+AC_PREREQ(2.61)
+
+AC_INIT(hyakutyping, 0.1.4, satofumi@sourceforge.jp)
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([src/hyakutyping.cpp])
+AM_CONFIG_HEADER([config.h])
+
+MAJOR_VERSION=`echo $VERSION | sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+MINOR_VERSION=`echo $VERSION | sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+MICRO_VERSION=`echo $VERSION | sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+AH_TEMPLATE(MAJOR_VERSION, [Major Version])
+AH_TEMPLATE(MINOR_VERSION, [Minor Version])
+AH_TEMPLATE(MICRO_VERSION, [Micro Version])
+AC_DEFINE_UNQUOTED(MAJOR_VERSION, "$MAJOR_VERSION")
+AC_DEFINE_UNQUOTED(MINOR_VERSION, "$MINOR_VERSION")
+AC_DEFINE_UNQUOTED(MICRO_VERSION, "$MICRO_VERSION")
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+
+# Checks for libraries.
+SDL_VERSION=1.2.10
+AM_PATH_SDL($SDL_VERSION,
+            :,
+            AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
+)
+CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+LIBS="$LDFLAGS $SDL_LIBS"
+
+AC_CHECK_LIB(SDL_ttf, TTF_Init, have_SDL_ttf=yes)
+if test x$have_SDL_ttf != xyes; then
+  AC_MSG_ERROR([*** SDL_ttf not found!])
+fi
+AH_TEMPLATE(HAVE_LIBSDL_TTF, [SDL_ttf Library])
+AC_DEFINE(HAVE_LIBSDL_TTF)
+
+AC_CHECK_LIB(SDL_net, SDLNet_Init, have_SDL_net=yes)
+if test x$have_SDL_net != xyes; then
+  AC_MSG_ERROR([*** SDL_net not found!])
+fi
+AH_TEMPLATE(HAVE_LIBSDL_NET, [SDL_net Library])
+AC_DEFINE(HAVE_LIBSDL_NET)
+
+AC_CHECK_LIB(SDL_mixer, Mix_AllocateChannels, have_SDL_mixer=yes)
+if test x$have_SDL_mixer != xyes; then
+  AC_MSG_ERROR([*** SDL_mixer not found!])
+fi
+AH_TEMPLATE(HAVE_LIBSDL_MIXER, [SDL_net Library])
+AC_DEFINE(HAVE_LIBSDL_MIXER)
+
+# Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_CHECK_HEADERS([stddef.h stdlib.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_TYPE_SIZE_T
+AC_STRUCT_TM
+AC_TYPE_UINT32_T
+
+# Checks for library functions.
+AC_FUNC_CLOSEDIR_VOID
+AC_FUNC_MKTIME
+AC_FUNC_STAT
+AC_CHECK_FUNCS([atexit memmove mkdir socket strrchr])
+
+AC_CONFIG_FILES([Makefile
+                 src/Makefile
+                 tools/Makefile
+                 tools/createCdTrackList/Makefile
+                 tools/playTrack/Makefile])
+AC_OUTPUT
